@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { SocialRecoveryModule } from "abstractionkit";
 
-import { PasskeyLocalStorageFormat } from "../logic/passkeys";
+import { PasskeyLocalStorageFormat, readPrivateKey } from "../logic/passkeys";
 import { getItem } from "../logic/storage";
 import { JsonRpcProvider, Wallet } from "ethers";
 
 const jsonRPCProvider = import.meta.env.VITE_JSON_RPC_PROVIDER;
-const chainId = import.meta.env.VITE_CHAIN_ID;
-const chainName = import.meta.env.VITE_CHAIN_NAME as string;
 const newOwnerPublicAddress = import.meta.env.VITE_NEW_OWNER_PUBLIC_ADDRESS;
 
 function GuardianCard({ passkey }: { passkey: PasskeyLocalStorageFormat }) {
@@ -31,20 +29,17 @@ function GuardianCard({ passkey }: { passkey: PasskeyLocalStorageFormat }) {
     setRecoverySignature("");
     setError("");
 
-    // local wallet demo to test
     const provider = new JsonRpcProvider(jsonRPCProvider);
-    const eoaGuardianAddress = "0x9d4982D853B09E863669cEfB1111A08c0b0124aA";
-    const eoaWallet = new Wallet(
-      "0x",
-      provider
-    );
+    const guardianPrivateKey = await readPrivateKey(passkey) || "";
+
+    const eoaWallet = new Wallet(guardianPrivateKey, provider);
 
     const srm = new SocialRecoveryModule();
     const confirmRecoveryTx = srm.createConfirmRecoveryMetaTransaction(
       accountToRecoverAddress,
       [newOwnerPublicAddress],
       1,
-      true
+      false
     );
     const confirmRecovery = await eoaWallet.sendTransaction({
       to: confirmRecoveryTx.to,

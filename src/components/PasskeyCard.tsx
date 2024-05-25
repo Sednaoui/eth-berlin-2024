@@ -1,38 +1,51 @@
-import { useMemo } from 'react'
-import { SafeAccountWebAuth as SafeAccount } from 'abstractionkit'
+import { useMemo } from "react";
 
-import { PasskeyLocalStorageFormat } from '../logic/passkeys'
-import { setItem } from '../logic/storage'
+import {
+  PasskeyLocalStorageFormat,
+  generateAndStorePrivateKey,
+} from "../logic/passkeys";
 
 const chainName = import.meta.env.VITE_CHAIN_NAME as string;
 
-function PasskeyCard({ passkey, handleCreatePasskeyClick }: { passkey?: PasskeyLocalStorageFormat; handleCreatePasskeyClick: () => void }) {
+function PasskeyCard({
+  passkey,
+  handleCreatePasskeyClick,
+}: {
+  passkey?: PasskeyLocalStorageFormat;
+  handleCreatePasskeyClick: () => void;
+}) {
   const getAccountAddress = useMemo(() => {
-    if (!passkey) return undefined
+    if (!passkey) return undefined;
 
-    const guardianAddress = SafeAccount.createAccountAddress([passkey.pubkeyCoordinates]);
-    setItem('guardianAddress', guardianAddress);
+    async function generateAndStoreKey(p: PasskeyLocalStorageFormat) {
+      const guardianAddress = await generateAndStorePrivateKey(p);
+      return guardianAddress;
+    }
 
-    return guardianAddress;
-  }, [passkey])
+    generateAndStoreKey(passkey);
+  }, [passkey]);
 
   return passkey ? (
-	<div className="card">
-		<p>Address: {" "}
-      <a
-        target="_blank"
-        href={`https://eth-${chainName}.blockscout.com/address/${getAccountAddress}`}
-      >
-        {getAccountAddress}
-      </a>
-    </p>
-	</div>
-) : (
     <div className="card">
-      <p>First, you need to create a passkey which will be used to sign transactions</p>
+      <p>
+        Address:{" "}
+        <a
+          target="_blank"
+          href={`https://eth-${chainName}.blockscout.com/address/${getAccountAddress}`}
+        >
+          {getAccountAddress}
+        </a>
+      </p>
+    </div>
+  ) : (
+    <div className="card">
+      <p>
+        First, you need to create a passkey which will be used to sign
+        transactions
+      </p>
       <button onClick={handleCreatePasskeyClick}>Create Account</button>
     </div>
-  )
+  );
 }
 
-export { PasskeyCard }
+export { PasskeyCard };
