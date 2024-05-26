@@ -12,4 +12,6 @@ function hexStringToUint8Array(hexString: string): Uint8Array {
   return new Uint8Array(arr)
 }
 
+export const socialRecoveryModuleAddress = import.meta.env.VITE_SCM_ADDRESS;
+
 export { hexStringToUint8Array }

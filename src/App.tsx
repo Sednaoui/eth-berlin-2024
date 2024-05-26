@@ -8,7 +8,6 @@ import "./App.css";
 import { useLocalStorageState } from "./hooks/useLocalStorageState.ts";
 import { useState } from "react";
 import { PasskeyCard } from "./components/PasskeyCard.tsx";
-import { GuardianCard } from "./components/GuardianCard.tsx";
 import { FaqCard } from "./components/FaqCard.tsx";
 import { UserWalletCard } from "./components/UserWalletCard.tsx";
 
@@ -37,19 +36,7 @@ function App() {
 
 	let userWalletContent = (
 		<>
-			{/* <PasskeyCard
-				passkey={passkey}
-				handleCreatePasskeyClick={handleCreatePasskeyClick}
-			/> */}
-
 			<UserWalletCard />
-
-			{/* {error && (
-				<div className="card">
-					<p>Error: {error}</p>
-				</div>
-			)} */}
-			{/* <FaqCard /> */}
 		</>
 	);
 
@@ -59,15 +46,6 @@ function App() {
 				passkey={passkey}
 				handleCreatePasskeyClick={handleCreatePasskeyClick}
 			/>
-
-			{passkey && <GuardianCard passkey={passkey} />}
-
-			{/* {error && (
-				<div className="card">
-					<p>Error: {error}</p>
-				</div>
-			)} */}
-			<FaqCard />
 		</>
 	);
 
@@ -78,12 +56,18 @@ function App() {
 					<img src={ethberlinLogo} className="logo" alt="Safe logo" />
 				</a>
 			</header>
-			<h1>Smart Wallet</h1>
-			{userWalletContent}
-			<br/>
-			<br/>
-			<h1>Recovery Contact</h1>
-			{guardianContent}
+			<div className="separator-div">
+				<div>
+					<h1>Smart Wallet</h1>
+					{userWalletContent}
+				</div>
+				<div style={{width: "5px", height: '250px', backgroundColor: 'grey', margin: '150px'}}/>
+				<div>
+					<h1>Recovery Contact</h1>
+					{guardianContent}
+				</div>
+			</div>
+			<FaqCard/>
 		</>
 	);
 }

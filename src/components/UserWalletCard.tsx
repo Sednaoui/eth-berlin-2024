@@ -1,27 +1,17 @@
-import { useEffect, useState } from "react";
-import {
-  SafeAccountV0_2_0 as SafeAccount,
-  getFunctionSelector,
-  createCallData,
-  MetaTransaction,
-  DummySignature,
-  CandidePaymaster,
-  SocialRecoveryModule,
-} from "abstractionkit";
-
-import { PasskeyLocalStorageFormat } from "../logic/passkeys";
-import { signAndSendUserOp } from "../logic/userOp";
-import { getItem } from "../logic/storage";
-import { JsonRpcProvider } from "ethers";
+import {useEffect, useState} from "react";
+import {CandidePaymaster, SafeAccountV0_2_0 as SafeAccount, SocialRecoveryModule,} from "abstractionkit";
+import {JsonRpcProvider, toBigInt} from "ethers";
+import {setItem} from "../logic/storage.ts";
+import {socialRecoveryModuleAddress} from "../utils.ts";
 
 const jsonRPCProvider = import.meta.env.VITE_JSON_RPC_PROVIDER;
 const bundlerUrl = import.meta.env.VITE_BUNDLER_URL;
 const paymasterUrl = import.meta.env.VITE_PAYMASTER_URL;
-const entrypoint = import.meta.env.VITE_ENTRYPOINT_ADDRESS;
 const chainId = import.meta.env.VITE_CHAIN_ID;
 const chainName = import.meta.env.VITE_CHAIN_NAME as string;
 const ownerPublicAddress = import.meta.env.VITE_OWNER_PUBLIC_ADDRESS as string;
 const pk = import.meta.env.VITE_OWNER_PRIVATE_KEY as string;
+const c2Nonce = import.meta.env.VITE_OWNER_NONCE as string;
 
 function UserWalletCard() {
   const [userOpHash, setUserOpHash] = useState<string>();
@@ -30,8 +20,9 @@ function UserWalletCard() {
   const [error, setError] = useState<string>();
   const [txHash, setTxHash] = useState<string>();
 
-  const safeAccount = SafeAccount.initializeNewAccount([ownerPublicAddress]);
+  const safeAccount = SafeAccount.initializeNewAccount([ownerPublicAddress], {c2Nonce: toBigInt(c2Nonce)});
   const accountAddress = safeAccount.accountAddress;
+  setItem("safe:account-address", accountAddress);
 
   const provider = new JsonRpcProvider(import.meta.env.VITE_JSON_RPC_PROVIDER);
 
@@ -48,14 +39,14 @@ function UserWalletCard() {
     setError("");
 
     // mint an NFT
-    const srm = new SocialRecoveryModule();
+    const srm = new SocialRecoveryModule(socialRecoveryModuleAddress);
 
     const enableModuleTx =
       srm.createEnableModuleMetaTransaction(accountAddress);
 
     const addGuardianTx = srm.createAddGuardianWithThresholdMetaTransaction(
       accountAddress,
-      "0x9d4982D853B09E863669cEfB1111A08c0b0124aA",
+      guardianAddress,
       1n //threshold
     );
 
@@ -71,13 +62,11 @@ function UserWalletCard() {
       bundlerUrl
     );
     try {
-      const signature = await safeAccount.signUserOperation(
-        userOperation,
-        [pk],
-        chainId
+      userOperation.signature = safeAccount.signUserOperation(
+          userOperation,
+          [pk],
+          chainId
       );
-
-      userOperation.signature = signature;
 
       const bundlerResponse = await safeAccount.sendUserOperation(
         userOperation,
@@ -119,7 +108,7 @@ function UserWalletCard() {
   const [guardiansCount, setGuardianCount] = useState(0);
   useEffect(() => {
     async function displayGuardians() {
-      const srm = new SocialRecoveryModule();
+      const srm = new SocialRecoveryModule(socialRecoveryModuleAddress);
       const guardiansList = await srm.getGuardians(
         jsonRPCProvider,
         accountAddress
