@@ -2,7 +2,10 @@
 
 ### The problem TrustKey Recovery solves
 
-Securing crypto accounts is paramount. Traditional methods often rely on centralized custodial services, which can be a single point of failure. Our project introduces a decentralized approach to account recovery, focusing on leveraging trust within a user's social circle—friends, family, and close acquaintances—without the necessity for them to have prior a crypto wallet, nor maintaining any funds. It all starts with a pub/private key pair. 
+Securing crypto accounts is paramount. Traditional methods often rely on centralized custodial services, which can be a single point of failure. Our project introduces a decentralized approach to account recovery, focusing on leveraging trust within a user's social circle—friends, family, and close acquaintances—without the necessity for them to have prior a crypto wallet, nor maintaining any funds. It all starts with a pub/private key pair.
+
+[Video Demo](https://drive.google.com/file/d/1n7AfxmcFQTr-EgwNl-PWxVKkhBzzzzfq/view?usp=sharing
+)
 
 #### Key Features
 
